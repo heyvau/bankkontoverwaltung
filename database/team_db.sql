@@ -16,6 +16,7 @@ create table if not exists Customer (
     foreign key (bank_bic) references Bank(bic)
 );
 
+
 create table if not exists Save_Account(
     iban varchar(27) primary key,
     bank_bic varchar(11),

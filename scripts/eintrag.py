@@ -17,7 +17,7 @@ def eintrag_konto_daten() -> dict:
     elif konto_art == "S":
         zinssatz = float(input("Zinssatz: "))
         konto_daten["zinssatz"] = zinssatz
-    print(konto_daten)
+
     return konto_daten
 
 

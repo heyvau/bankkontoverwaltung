@@ -156,8 +156,9 @@ class Sparkonto(Konto):
         return True
 
 
-    def zinsberechnung(self) -> None:
-        pass
+    def zinsberechnung(self) -> float:
+        self.guthaben += self.guthaben * 0.01 * self.zinssatz
+        return self.guthaben
 
 
     def info(self) -> None:
