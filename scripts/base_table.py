@@ -1,10 +1,23 @@
+from __future__ import annotations
 from error_handlers import catch_error
 
 
 class BaseTable:
-    def __init__(self, conn, cursor):
+    def __init__(
+            self, 
+            conn, cursor,
+            fields: tuple[str],
+            pk: str,
+            references: list[BaseTable] = [],
+            fk: str | None = None
+            ) -> None:
+
         self.conn = conn
         self.cursor = cursor
+        self.fields = fields
+        self.pk = pk
+        self.references = references
+        self.fk = fk
 
 
     @property
@@ -13,7 +26,7 @@ class BaseTable:
 
 
     @catch_error
-    def insert(self, **kwargs):
+    def insert(self, **kwargs) -> None:
         self.cursor.execute(
             f'INSERT INTO {self.cls_name} ({", ".join(kwargs.keys())}) \
             VALUES ({", ".join(["%s"]*len(kwargs))})',
@@ -23,15 +36,24 @@ class BaseTable:
 
 
     @catch_error
-    def rows(self):
-        self.cursor.execute(
-            f'SELECT * FROM {self.cls_name}'
+    def rows(self, **kwargs) -> list[dict]:
+        if not kwargs:
+            self.cursor.execute(
+                f'SELECT * FROM {self.cls_name}'
+            )
+        else:
+            search_key, search_value = next(iter(kwargs.items()))
+            self.cursor.execute(
+            f'SELECT * FROM {self.cls_name} \
+            WHERE {search_key} = %s',
+            (search_value,)
         )
         return self.cursor.fetchall()
 
 
     @catch_error
-    def row(self, search_key: str, search_value):
+    def row(self, **kwargs) -> dict | None:
+        search_key, search_value = next(iter(kwargs.items()))
         self.cursor.execute(
             f'SELECT * FROM {self.cls_name} \
             WHERE {search_key} = %s',
@@ -41,7 +63,8 @@ class BaseTable:
 
 
     @catch_error
-    def update(self, search_key: str, search_value, set_data: dict):
+    def update(self, set_data: dict, **kwargs) -> None:
+        search_key, search_value = next(iter(kwargs.items()))
         set_data_str = ', '.join([f"{k}=%s" for k in set_data])
 
         self.cursor.execute(
@@ -54,7 +77,8 @@ class BaseTable:
 
 
     @catch_error
-    def delete(self, search_key: str, search_value):
+    def delete(self, **kwargs) -> None:
+        search_key, search_value = next(iter(kwargs.items()))
         self.cursor.execute(
             f'DELETE FROM {self.cls_name} \
             WHERE {search_key} = %s',
