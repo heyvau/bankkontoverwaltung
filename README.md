@@ -1,3 +1,5 @@
+from app.py
+
 ```mermaid
     erDiagram
         Bank {
