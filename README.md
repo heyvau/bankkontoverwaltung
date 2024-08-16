@@ -1,4 +1,3 @@
-from app.py
 
 ```mermaid
     erDiagram
